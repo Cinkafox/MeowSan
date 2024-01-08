@@ -1,76 +1,129 @@
-import { Client, Message } from "discord.js-selfbot-v13";
-import 'dotenv/config';
-import NickPipeline from "./TextPipeline/NickPipeline.js";
-import GifPipeline from "./TextPipeline/GifPipeline.js";
 import GPTProvider from "./AIProvider/GPTProvider.js";
-import History from "./Data/History.js";
-import Load from "./Utils/HistoryLoader.js";
-import fs from "node:fs";
+import Bot from "./Bot.js";
+import express from "express";
 import Logger from "./Utils/Logger.js";
-import Serialize from "./Utils/HistorySerializer.js";
-import BaseProvider from "./AIProvider/BaseProvider.js";
+import fs from "fs";
 
-class Bot{
-    client = new Client({
-        checkUpdate: false
+const app = express();
+const port = 3000;
+
+const bot = new Bot(new GPTProvider(),"kravchenko")
+
+app.get('/', (req, res) => {
+    res.setHeader("Content-Type","text/html").send(fs.readFileSync("Page/index.html"));
+});
+
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ * @param {*} next 
+ */
+const auth = function(req, res, next) {
+    if(req.query.key !== process.env.BOT_PASS){
+        res.setHeader("Content-Type","application/json")
+        .status(401)
+        .send({
+            "status":"error",
+            "error":"WHERE IS A KEY BITCH???"
+        })
+        return;
+    }
+    Logger.info("USER WITH TOKEN",req.query.key,"EXECUTED",req.originalUrl);
+    next();
+};
+
+app.get("/status",auth,(req,res)=>{
+    res.setHeader("Content-Type","application/json").send({
+        "status":"done",
+        "currentProfile":bot.name,
+        "ignoringUsers":bot.ignoringUsers,
+        "ignoringChannels":bot.ignoringChannels
+    })
+});
+
+app.get('/discordUsers',auth,(req,res)=>{
+    const whe = res.setHeader("Content-Type","application/json");
+    const arr = [];
+    for(let [id,user] of bot.client.users.cache){
+        arr.push(user.username);
+    }
+    whe.send({
+        "status":"done",
+        "users":arr
     });
-    /**
-     * @type {BaseProvider}
-     */
-    aiProvider;
-    inputPipeline = new NickPipeline();
-    outPipeline = new GifPipeline();
-    systemMessage = new History();
-    messageHistory = new History(this.systemMessage);
-    name = "Meow"
+});
 
-    constructor(aiProvider,profileName){
-        if(profileName != undefined){
-            this.LoadProfile(profileName)
+
+app.get('/profile', auth, (req, res) => {
+    const whe = res.setHeader("Content-Type","application/json");
+
+    if(req.query.set !== undefined && req.query.set !== ""){
+        try {
+            bot.LoadProfile(req.query.set);
+            whe.send({
+                "status":"done",
+                "curprofile":bot.name
+            });
+        } catch (error) {
+            whe.send({
+                "status":"error",
+                "error":error.message
+            });
         }
-
-        this.aiProvider = aiProvider;
-        this.client.on("ready",(m)=>this.#onReady(m));
-        this.client.on("messageCreate",(m)=>this.#onMessageCreate(m));
-        this.client.login(process.env.KEY);
+        return;
     }
 
-    #onReady(){
-        Logger.info("BOT IS READY:",this.name)
+    const files = [];
+
+    for(let file of fs.readdirSync("BotProfiles")){
+        files.push(file.split(".")[0])
     }
 
-    /**
-     * 
-     * @param {Message} message 
-     */
-    async #onMessageCreate(message){
-        const author = message.author.username;
-        if (author === message.client.user.username) return;
-        if (!message.content.toLocaleLowerCase().includes(this.name)) return;
+    whe.send({
+        "status":"done",
+        "profiles":files
+    });
+});
 
-        message.channel.sendTyping();
-        
-        let text = await this.inputPipeline.resolve(message.content,message);
-        Logger.info(author," написал:",text);
+//МММ СПАГЕТТИ УЛЯЛЯ!
+app.get("/ignore/:type", auth, (req, res) => {
+    const whe = res.setHeader("Content-Type","application/json");
 
-        let res = await this.aiProvider.prompt(author,text,this.messageHistory);
-        let outText = await this.outPipeline.resolve(res,message);
-        if(outText.length !== 0){
-            message.channel.send(outText);
-            Logger.info(outText);
+    const type = req.params.type;
+
+    if(req.query.add !== undefined && req.query.add !== ""){
+        if(type == "user")
+            bot.AddUserIgnore(req.query.add);
+        else if (type == "channel")
+            bot.AddChannelIgnore(req.query.add);
+        else{
+            whe.send({"status":"error","error":"unknow type " + type}); 
+            return;
         }
-
-        Logger.debug(Serialize(this.messageHistory));
+        whe.send({"status":"done"});
+        return;
     }
-
-    LoadProfile(name){
-        if(name !== this.name){
-            this.messageHistory.clear(true);
+    if(req.query.remove !== undefined && req.query.remove !== ""){
+        if(type == "user")
+            bot.RemoveUserIgnore(req.query.remove);
+        else if (type == "channel")
+            bot.RemoveChannelIgnore(req.query.remove)
+        else{
+            whe.send({"status":"error","error":"unknow type " + type});
+            return;
         }
-
-        this.name = Load(fs.readFileSync("BotProfiles/"+name+".log").toString(),this.systemMessage);
+        whe.send({"status":"done"});  
+        return;
     }
-}
+    if(type == "user")
+        whe.send({"status":"done","ignoredUsers":bot.ignoringUsers});
+    else if (type == "channel")
+        whe.send({"status":"done","ignoredChannels":bot.ignoringChannels});
+    else
+        whe.send({"status":"error","error":"unknow type " + type})   ;
+});
 
-
-new Bot(new GPTProvider(),"kravchenko")
+app.listen(port, () => {
+    Logger.info(`сервер пашет на порту ${port}`);
+});

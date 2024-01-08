@@ -46,7 +46,7 @@ class Logger
     
     #logToFile(text){
         const logDate = new Date().toISOString()
-        fs.appendFileSync("Logs/"+this.Data+".txt",`[${logDate}] ${text}\n`)
+        fs.appendFileSync("Logs/"+this.Data+".log",`[${logDate}] ${text}\n`)
     }
 
     info(){

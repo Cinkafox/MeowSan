@@ -3,7 +3,7 @@ import Prompt from "../Data/Prompt.js";
 import Logger from "./Logger.js";
 
 /**
- * 
+ * Deserialize some shit
  * @param {string} raw 
  * @param {History} history 
  */

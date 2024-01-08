@@ -1,8 +1,7 @@
 import History from "../Data/History.js";
-import Prompt from "../Data/Prompt.js";
 
 /**
- * 
+ * Serialize history for reading
  * @param {History} history 
  */
 export default function Serialize(history){
