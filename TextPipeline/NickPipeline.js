@@ -17,8 +17,8 @@ export default class NickPipeline extends BasePipeline{
             var splited = a[i].split("<@")
             if(splited.length == 2){
                 var id = splited[1].slice(0, -1)
-                if(m.guild != null){
-                    a[i] = m.guild.members.cache.get(id).user.username
+                if(m.guild != undefined && m.guild.members.cache.get(id)?.user?.username != undefined){
+                    a[i] = m.guild.members.cache.get(id)?.user?.username
                 }else{
                     a[i] = "собеседник"
                 }
