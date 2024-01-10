@@ -3,11 +3,15 @@ import Bot from "./Bot.js";
 import express from "express";
 import Logger from "./Utils/Logger.js";
 import fs from "fs";
+import LocalProvider from "./AIProvider/LocalProvider.js";
+import History from "./Data/History.js";
+import Prompt from "./Data/Prompt.js";
 
 const app = express();
 const port = 3000;
 
-const bot = new Bot(new GPTProvider(),"kravchenko")
+const provider = new GPTProvider();
+const bot = new Bot(provider,"kravchenko.nsfw")
 
 app.get('/', (req, res) => {
     res.setHeader("Content-Type","text/html").send(fs.readFileSync("Page/index.html"));
@@ -123,6 +127,15 @@ app.get("/ignore/:type", auth, (req, res) => {
     else
         whe.send({"status":"error","error":"unknow type " + type})   ;
 });
+
+const history = new History();
+
+app.get("/prompt/:text",auth,async (req,res)=>{
+    const whe = res.setHeader("Content-Type","application/json");
+    const text = req.params.text;
+    const out = await provider.prompt("user",text,history);
+    whe.send({"text":out});
+})
 
 app.listen(port, () => {
     Logger.info(`сервер пашет на порту ${port}`);

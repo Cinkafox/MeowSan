@@ -1,284 +1,323 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Meow control</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f2f2f2;
-                margin: 0;
-                padding: 0;
-            }
-            
-            h1 {
-                color: #333;
-                text-align: center;
-                padding: 20px;
-                background-color: #fff;
-                margin: 0;
-            }
-            
 
-            main {
-                display: flex;
-                justify-content: center;
-            }
-            
-            #keyMenu, #mainMenu {
-                background-color: #fff;
-                box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-                padding: 20px;
-                margin: 20px;
-                border-radius: 5px;
-            }
-            
-            #keyMenu {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            #keyInput {
-                padding: 5px;
-                margin-bottom: 10px;
-                width: 200px;
-            }
-            
-            #mainMenu > div {
-                margin-bottom: 20px;
-            }
-            
-            #mainMenu h2 {
-                color: #333;
-                margin-bottom: 10px;
-            }
-            
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            
-            table td {
-                padding: 5px;
-                border-bottom: 1px solid #ccc;
-            }
-            
-            #ignoreUserInput, #ignoreChannelInput, #profileInput {
-                padding: 5px;
-                margin-right: 10px;
-                width: 200px;
-            }
-            
-            #ignoreUserButton, #ignoreChannelButton, #removeButton, #profileButton {
-                padding: 5px 10px;
-                background-color: #333;
-                color: #fff;
-                border: none;
-                border-radius: 3px;
-                cursor: pointer;
-            }
-            
-            #ignoreUserButton:hover, #ignoreChannelButton:hover, #removeButton:hover, #profileButton:hover {
-                background-color: #555;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Meow control!</h1>
-        <main>
-            <div hidden="true" id="keyMenu">
-                <p>Gimme a key!</p>
-                <input type="password" id="keyInput" name="key"/>
-                <input type="button" id="ignoreUserButton" onclick="giveKey()" value="Done!"/>
+<head>
+    <title>Meow control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            margin: 0;
+        }
+
+
+        main, footer {
+            display: flex;
+            justify-content: center;
+        }
+
+        #keyMenu,
+        #mainMenu,#infoPanel {
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px;
+            border-radius: 5px;
+        }
+        
+        #infoPanel{
+            width: 60%;
+        }
+
+        #keyMenu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #keyInput {
+            padding: 5px;
+            margin-bottom: 10px;
+            width: 200px;
+        }
+
+        #mainMenu>div {
+            margin-bottom: 20px;
+        }
+
+        #mainMenu h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table td {
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+            margin-right: 0;
+        }
+
+        #ignoreUserInput,
+        #ignoreChannelInput,
+        #profileInput {
+            padding: 5px;
+            margin-right: 10px;
+            width: 200px;
+        }
+
+        #ignoreUserButton,
+        #ignoreChannelButton,
+        #removeButton,
+        #profileButton {
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        #ignoreUserButton:hover,
+        #ignoreChannelButton:hover,
+        #removeButton:hover,
+        #profileButton:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Meow control!</h1>
+    <main>
+        <div hidden="true" id="keyMenu">
+            <p>Gimme a key!</p>
+            <input type="password" id="keyInput" name="key" />
+            <input type="button" id="ignoreUserButton" onclick="giveKey()" value="Done!" />
+        </div>
+        <div hidden="true" id="mainMenu">
+            <div>
+                <h2>Ignored users</h2>
+                <table id="ignoredUsers">
+                </table>
+                <table>
+                    <td>
+                        <input type="text" id="ignoreUserInput" list="ignoredUsersList" />
+                    </td>
+                    <td>
+                        <input type="button" id="ignoreUserButton" value="Add" onclick="ignoreUser()" />
+                    </td>
+                </table>
+                <datalist id="ignoredUsersList">
+                </datalist>
             </div>
-            <div hidden="true" id="mainMenu">
-                <div>
-                    <h2>Ignored users</h2>
-                    <table id="ignoredUsers" >
-                    </table>
-                    <table>
-                        <td>
-                            <input type="text" id="ignoreUserInput" list="ignoredUsersList"/>
-                        </td>
-                        <td>
-                            <input type="button" id="ignoreUserButton" value="Add" onclick="ignoreUser()"/>
-                        </td>
-                    </table>
-                    <datalist id="ignoredUsersList">
+
+            <div>
+                <h2>Ignored channels</h2>
+                <table id="ignoredChannels">
+                </table>
+                <table>
+                    <td>
+                        <input type="text" id="ignoreChannelInput" />
+                    </td>
+                    <td>
+                        <input type="button" id="ignoreChannelButton" value="Add" onclick="ignoreChannel()" />
+                    </td>
+                </table>
+            </div>
+
+            <div>
+                <h2>Load profile</h2>
+                <table id="profile">
+                    <td>
+                        <input type="text" id="profileInput" list="profileList" />
+                    </td>
+                    <td>
+                        <input type="button" id="profileButton" value="Set" onclick="loadProfile()" />
+                    </td>
+                    <datalist id="profileList">
+
                     </datalist>
-                </div>
-                
-                <div>
-                    <h2>Ignored channels</h2>
-                    <table id="ignoredChannels">
-                    </table>
-                    <table>
-                        <td>
-                            <input type="text" id="ignoreChannelInput"/>
-                        </td>
-                        <td>
-                            <input type="button" id="ignoreChannelButton" value="Add" onclick="ignoreChannel()"/>
-                        </td>
-                    </table>
-                </div>
-
-                <div>
-                    <h2>Load profile</h2>
-                    <table id="profile">
-                        <td>
-                            <input type="text" id="profileInput" list="profileList"/>
-                        </td>
-                        <td>
-                            <input type="button" id="profileButton" value="Set" onclick="loadProfile()"/>
-                        </td>
-                        <datalist id="profileList">
-                        
-                        </datalist>
-                    </table>
-                </div>
+                </table>
             </div>
-        </main>
+        </div>
+        <div id="infoPanel">
+            <div id="info"></div>
+        </div>
+    </main>
+    <footer>
+       
+    </footer>
 
 
-        <script>
-            const basicUrl = new URL(window.location.href);
-            const keyMenu = document.getElementById("keyMenu");
-            const keyInput = document.getElementById("keyInput");
+    <script>
+        const basicUrl = new URL(window.location.href);
+        const keyMenu = document.getElementById("keyMenu");
+        const keyInput = document.getElementById("keyInput");
 
-            const mainMenu = document.getElementById("mainMenu");
-            const ignoredUserTable = document.getElementById("ignoredUsers");
-            const ignoredChannelTable = document.getElementById("ignoredChannels");
+        const mainMenu = document.getElementById("mainMenu");
+        const ignoredUserTable = document.getElementById("ignoredUsers");
+        const ignoredChannelTable = document.getElementById("ignoredChannels");
 
-            const ignoredUserInput = document.getElementById("ignoreUserInput");
-            const ignoredChannelInput = document.getElementById("ignoreChannelInput");
-            const ignoredUsersList = document.getElementById("ignoredUsersList");
+        const ignoredUserInput = document.getElementById("ignoreUserInput");
+        const ignoredChannelInput = document.getElementById("ignoreChannelInput");
+        const ignoredUsersList = document.getElementById("ignoredUsersList");
 
-            const profileList = document.getElementById("profileList");
-            const profileInput = document.getElementById("profileInput");
+        const profileList = document.getElementById("profileList");
+        const profileInput = document.getElementById("profileInput");
 
-            let key = localStorage.getItem("key");
+        const info = document.getElementById("info");
+
+        let key = localStorage.getItem("key");
+
+        status()
+
+
+        function status() {
+            ignoredUserTable.innerHTML = "";
+            ignoredChannelTable.innerHTML = "";
+            let url = new URL("/status", basicUrl);
+            url.searchParams.set("key", key);
+
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.send();
+            xhr.onload = () => {
+                console.log(xhr.status)
+                if (xhr.status === 401) {
+                    keyMenu.style.display = 'block';
+                    mainMenu.style.display = 'none';
+                } else {
+                    keyMenu.style.display = 'none';
+                    mainMenu.style.display = 'block';
+                }
+                console.log(xhr.response);
+                let obj = JSON.parse(xhr.response);
+                if (obj.status === "done") {
+                    for (let user of obj.ignoringUsers) {
+                        appendTable(ignoredUserTable, user, "user")
+                    }
+                    for (let channel of obj.ignoringChannels) {
+                        appendTable(ignoredChannelTable, channel, "channel")
+                    }
+
+                    loadUsers();
+                    profile();
+                }
+                setInfo(obj,"status good");
+
+            }
+        }
+
+        function loadUsers() {
+            ignoredUsersList.innerHTML = "";
+            let url = new URL("/discordUsers", basicUrl);
+            url.searchParams.set("key", key);
+
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.send();
+
+            xhr.onload = () => {
+                let obj = JSON.parse(xhr.response);
+                if (obj.status === "done") {
+                    for (let user of obj.users) {
+                        ignoredUsersList.append(new Option(user, user));
+                    }
+                }
+                setInfo(obj,"ignored users list was updated");
+            }
+        }
+
+        function profile(name) {
+            let url = new URL("/profile", basicUrl);
+            url.searchParams.set("key", key);
+            if (name != undefined) {
+                url.searchParams.set("set", name)
+            }
+
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.send();
+
+            xhr.onload = () => {
+                let obj = JSON.parse(xhr.response);
+                if (obj.status === "done" && obj.profiles !== undefined) {
+                    for (let profile of obj.profiles) {
+                        profileList.append(new Option(profile, profile));
+                    }
+                }
+                setInfo(obj,"profile was updated");
+            }
+        }
+
+        function loadProfile() {
+            profile(profileInput.value);
+        }
+
+        function ignoreUser() {
+            ignore("user", ignoredUserInput.value, "add");
+        }
+
+        function ignoreChannel() {
+            ignore("channel", ignoredChannelInput.value, "add");
+        }
+
+        function ignore(type, name, doing) {
+            console.log(type + "|" + name + " JUST MEOW " + doing)
+            let url = new URL("/ignore/" + type, basicUrl);
+            url.searchParams.set(doing, name);
+            url.searchParams.set("key", key)
+
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.send();
+
+            xhr.onload = () => {
+                let obj = JSON.parse(xhr.response);
+                setInfo(obj,"ignore list loaded");
+                status();
+            }
+        }
+
+        function appendTable(table, name, type) {
+            var row = table.insertRow(0);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            cell1.innerHTML = name;
+            cell2.innerHTML = `<input type="button" id="removeButton" onclick="ignore('${type}','${name}','remove')" value="Ren"/>`;
+            cell2.style["text-align"] = "right";
+        }
+
+        function giveKey() {
+            key = keyInput.value;
+            console.log(key);
+            localStorage.setItem("key", key)
 
             status()
-            
+        }
 
-            function status(){
-                ignoredUserTable.innerHTML = "";
-                ignoredChannelTable.innerHTML = "";
-                let url = new URL("/status",basicUrl);
-                url.searchParams.set("key",key);
-
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', url);
-                xhr.send();
-                xhr.onload = () =>{
-                    console.log(xhr.status)
-                    if(xhr.status === 401){
-                        keyMenu.style.display = 'block'; 
-                        mainMenu.style.display = 'none';
-                    }else{
-                        keyMenu.style.display = 'none';
-                        mainMenu.style.display = 'block';
-                    }
-                    console.log(xhr.response);
-                    let obj = JSON.parse(xhr.response);
-                    if(obj.status === "done"){
-                        for(let user of obj.ignoringUsers){
-                            appendTable(ignoredUserTable,user,"user")
-                        }
-                        for(let channel of obj.ignoringChannels){
-                            appendTable(ignoredChannelTable,channel,"channel")
-                        }
-
-                        loadUsers();
-                        profile();
-                    }
-                    
-                }
-            }   
-
-            function loadUsers(){
-                ignoredUsersList.innerHTML = "";
-                let url = new URL("/discordUsers",basicUrl);
-                url.searchParams.set("key",key);
-
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', url);
-                xhr.send();
-
-                xhr.onload = () =>{
-                   let obj = JSON.parse(xhr.response);
-                   if(obj.status === "done"){
-                        for(let user of obj.users){
-                            ignoredUsersList.append(new Option(user,user));
-                        }
-                   }
-                }
+        function setInfo(obj,text = "Done!"){
+            if(obj.status === "error"){
+                text = obj.error
             }
+            console.log(text)
 
-            function profile(name){
-                let url = new URL("/profile",basicUrl);
-                url.searchParams.set("key",key);
-                if(name != undefined){
-                    url.searchParams.set("set",name)
-                }
+            info.innerHTML += `<p>[WEB LOG] ${text}</p>`;
+        }
+    </script>
+</body>
 
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', url);
-                xhr.send();
-
-                xhr.onload = () =>{
-                   let obj = JSON.parse(xhr.response);
-                   if(obj.status === "done" || obj.profiles !== undefined){
-                        for(let profile of obj.profiles){
-                            profileList.append(new Option(profile,profile));
-                        }
-                   }
-                }
-            }
-
-            function loadProfile(){
-                profile(profileInput.value);
-            }
-
-            function ignoreUser(){
-                ignore("user",ignoredUserInput.value,"add");
-            }
-
-            function ignoreChannel(){
-                ignore("channel",ignoredChannelInput.value,"add");
-            }
-
-            function ignore(type,name,doing){
-                console.log(type + "|" + name +" JUST MEOW " + doing)
-                let url = new URL("/ignore/"+type,basicUrl);
-                url.searchParams.set(doing,name);
-                url.searchParams.set("key",key)
-
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', url);
-                xhr.send();
-
-                xhr.onload = () =>{
-                    status();
-                }
-            }
-
-            function appendTable(table,name,type){
-                var row = table.insertRow(0);
-                var cell1 = row.insertCell(0);
-                var cell2 = row.insertCell(1);
-                cell1.innerHTML = name;
-                cell2.innerHTML = `<input type="button" id="removeButton" onclick="ignore('${type}','${name}','remove')" value="Ren"/>`;
-                cell2.style["text-align"] = "right";
-            }
-
-            function giveKey(){
-                key = keyInput.value;
-                console.log(key);
-                localStorage.setItem("key",key)
-
-                status()
-            }
-        </script>
-    </body>
 </html>

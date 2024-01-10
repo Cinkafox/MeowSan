@@ -10,7 +10,8 @@ import Logger from "./Logger.js";
 export default function Load(raw,history){
     history.clear(false);
     let botName = "ассистент";
-    raw.split("\n").forEach(element => {
+    //substring for deleting first |
+    raw.substring(1).split("\n|").forEach(element => {
         let splited = element.split("|");
 
         if(splited[0] == "name") {
@@ -19,6 +20,6 @@ export default function Load(raw,history){
         }
         history.append(new Prompt(splited[0],splited[1]));
     });
-    Logger.info("LOADED " + botName)
+    Logger.info("LOADED " + botName);
     return botName;
 }
