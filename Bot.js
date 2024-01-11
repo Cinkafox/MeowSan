@@ -56,16 +56,12 @@ export default class Bot{
         message.channel.sendTyping();
         
         let text = await this.inputPipeline.resolve(message.content,message);
-        Logger.info(author," написал:",text);
 
         let res = await this.aiProvider.prompt(author,text,this.messageHistory);
         let outText = await this.outPipeline.resolve(res,message);
         if(outText.length !== 0){
             message.channel.send(outText);
-            Logger.info(outText);
         }
-
-        Logger.debug(Serialize(this.messageHistory));
     }
 
     LoadProfile(name){

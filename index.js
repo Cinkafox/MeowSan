@@ -4,15 +4,15 @@ import express from "express";
 import Logger from "./Utils/Logger.js";
 import fs from "fs";
 import LocalProvider from "./AIProvider/LocalProvider.js";
-import History from "./Data/History.js";
-import Prompt from "./Data/Prompt.js";
 import bodyParser from "body-parser";
 
 const app = express();
 const port = 3000;
 
-const provider = new GPTProvider();
-const bot = new Bot(provider,"kravchenko.nsfw")
+const provider = new LocalProvider();
+
+//вместо kravchenko можно написать другой профиль, который находится в папке profile
+const bot = new Bot(provider,"kravchenko")
 
 app.use(bodyParser.json())
 
@@ -27,8 +27,9 @@ app.get('/', (req, res) => {
  * @param {*} next 
  */
 const auth = function(req, res, next) {
+    res.setHeader("Content-Type","application/json");
     if(req.query.key !== process.env.BOT_PASS){
-        res.setHeader("Content-Type","application/json")
+        res
         .status(401)
         .send({
             "status":"error",
@@ -41,7 +42,7 @@ const auth = function(req, res, next) {
 };
 
 app.get("/status",auth,(req,res)=>{
-    res.setHeader("Content-Type","application/json").send({
+    res.send({
         "status":"done",
         "currentProfile":bot.name,
         "ignoringUsers":bot.ignoringUsers,
@@ -50,12 +51,11 @@ app.get("/status",auth,(req,res)=>{
 });
 
 app.get('/discordUsers',auth,(req,res)=>{
-    const whe = res.setHeader("Content-Type","application/json");
     const arr = [];
     for(let [id,user] of bot.client.users.cache){
         arr.push(user.username);
     }
-    whe.send({
+    res.send({
         "status":"done",
         "users":arr
     });
@@ -63,17 +63,15 @@ app.get('/discordUsers',auth,(req,res)=>{
 
 
 app.get('/profile', auth, (req, res) => {
-    const whe = res.setHeader("Content-Type","application/json");
-
     if(req.query.set !== undefined && req.query.set !== ""){
         try {
             bot.LoadProfile(req.query.set);
-            whe.send({
+            res.send({
                 "status":"done",
                 "curprofile":bot.name
             });
         } catch (error) {
-            whe.send({
+            res.send({
                 "status":"error",
                 "error":error.message
             });
@@ -87,7 +85,7 @@ app.get('/profile', auth, (req, res) => {
         files.push(file.split(".")[0])
     }
 
-    whe.send({
+    res.send({
         "status":"done",
         "profiles":files
     });
@@ -95,8 +93,6 @@ app.get('/profile', auth, (req, res) => {
 
 //МММ СПАГЕТТИ УЛЯЛЯ!
 app.get("/ignore/:type", auth, (req, res) => {
-    const whe = res.setHeader("Content-Type","application/json");
-
     const type = req.params.type;
 
     if(req.query.add !== undefined && req.query.add !== ""){
@@ -105,10 +101,10 @@ app.get("/ignore/:type", auth, (req, res) => {
         else if (type == "channel")
             bot.AddChannelIgnore(req.query.add);
         else{
-            whe.send({"status":"error","error":"unknow type " + type}); 
+            res.send({"status":"error","error":"unknow type " + type}); 
             return;
         }
-        whe.send({"status":"done"});
+        res.send({"status":"done"});
         return;
     }
     if(req.query.remove !== undefined && req.query.remove !== ""){
@@ -117,26 +113,24 @@ app.get("/ignore/:type", auth, (req, res) => {
         else if (type == "channel")
             bot.RemoveChannelIgnore(req.query.remove)
         else{
-            whe.send({"status":"error","error":"unknow type " + type});
+            res.send({"status":"error","error":"unknow type " + type});
             return;
         }
-        whe.send({"status":"done"});  
+        res.send({"status":"done"});  
         return;
     }
     if(type == "user")
-        whe.send({"status":"done","ignoredUsers":bot.ignoringUsers});
+        res.send({"status":"done","ignoredUsers":bot.ignoringUsers});
     else if (type == "channel")
-        whe.send({"status":"done","ignoredChannels":bot.ignoringChannels});
+        res.send({"status":"done","ignoredChannels":bot.ignoringChannels});
     else
-        whe.send({"status":"error","error":"unknow type " + type})   ;
+        res.send({"status":"error","error":"unknow type " + type})   ;
 });
 
 app.post("/prompt",auth,async (req,res)=>{
-    const whe = res.setHeader("Content-Type","application/json");
-
     const text = req.body.prompt;
     const out = await provider.prompt("user",text,bot.messageHistory);
-    whe.send({"status":"done","text":out});
+    res.send({"status":"done","text":out});
 })
 
 app.listen(port, () => {

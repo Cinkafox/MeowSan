@@ -3,6 +3,7 @@ import BaseProvider from "./BaseProvider.js";
 import fs from "node:fs";
 import {LlamaModel, LlamaContext, LlamaChatSession, LlamaChatPromptWrapper, ChatMLChatPromptWrapper, GeneralChatPromptWrapper,FalconChatPromptWrapper,ChatPromptWrapper} from "node-llama-cpp";
 import Prompt from "../Data/Prompt.js";
+import Logger from "../Utils/Logger.js";
 
 export default class LocalProvider extends BaseProvider{
     /**
@@ -13,6 +14,7 @@ export default class LocalProvider extends BaseProvider{
      * @type {LlamaContext}
      */
     context;
+    session;
 
     constructor(){
         super()
@@ -30,22 +32,25 @@ export default class LocalProvider extends BaseProvider{
      * @returns {Promise<string>}
      */
     async prompt(user,message,history){
-        super.prompt(user,message);
+        super.prompt(user,message,history);
+
+        if(this.session === undefined){
+            Logger.info("CREATING NEW SESSION FOR LOCAL")
+            this.session = new LlamaChatSession({
+                context: this.context,
+                promptWrapper: new MyCustomChatPromptWrapper(),
+                systemPrompt: this.Parse(history)
+            });
+        }
 
         message = user + " написал:" + message
 
-        const session = new LlamaChatSession({
-            context: this.context,
-            promptWrapper: new MyCustomChatPromptWrapper(),
-            systemPrompt: this.Parse(history)
-        });
-
         history.append(new Prompt("user",message));
 
-        const text = await session.prompt(message,{
+        const text = await this.session.prompt(message,{
             repeatPenalty: {
-                lastTokens: 24,
-                penalty: 1.14,
+                lastTokens: 36,
+                penalty: 1.2,
                 penalizeNewLine: true,
                 frequencyPenalty: 0.02,
                 presencePenalty: 0.02,
@@ -56,6 +61,8 @@ export default class LocalProvider extends BaseProvider{
         });
 
         history.append(new Prompt("assistant",text));
+
+        Logger.info("LOCAL response:",text);
         return text;
     }
 

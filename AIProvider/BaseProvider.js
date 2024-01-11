@@ -1,5 +1,6 @@
 import History from "../Data/History.js";
 import Prompt from "../Data/Prompt.js"
+import Logger from "../Utils/Logger.js";
 
 export default class BaseProvider{
     /**
@@ -10,6 +11,6 @@ export default class BaseProvider{
      * @returns {Promise<string>}
      */
     async prompt(user,message,history){
-        
+        Logger.info(user," написал:",message);
     }
 }

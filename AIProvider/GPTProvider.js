@@ -1,5 +1,6 @@
 import History from "../Data/History.js";
 import Prompt from "../Data/Prompt.js";
+import Logger from "../Utils/Logger.js";
 import BaseProvider from "./BaseProvider.js";
 import tiny from "tiny-json-http";
 
@@ -25,6 +26,8 @@ export default class GPTProvider extends BaseProvider{
 
         let botMessage = res.body.choices[0].message;
         history.append(new Prompt(botMessage.role,botMessage.content));
+
+        Logger.info("GPT response:",botMessage.content);
 
         return botMessage.content;
      }
