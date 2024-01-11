@@ -9,7 +9,7 @@ export default class History{
      * @type {History}
      */
     parent;
-    maxLength = 4;
+    maxLength = 6;
 
     constructor(parent){
         this.#history = [];

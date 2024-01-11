@@ -36,6 +36,14 @@
         
         #infoPanel{
             width: 60%;
+            background-color: #333;
+            color: rgb(192, 192, 192);
+            padding: 0;
+            position: relative;
+        }
+
+        #info{
+            padding: 20px;
         }
 
         #keyMenu {
@@ -72,6 +80,7 @@
 
         #ignoreUserInput,
         #ignoreChannelInput,
+        #infoInpit,
         #profileInput {
             padding: 5px;
             margin-right: 10px;
@@ -81,7 +90,8 @@
         #ignoreUserButton,
         #ignoreChannelButton,
         #removeButton,
-        #profileButton {
+        #profileButton,
+        #infoButton {
             padding: 5px 10px;
             background-color: #333;
             color: #fff;
@@ -93,8 +103,24 @@
         #ignoreUserButton:hover,
         #ignoreChannelButton:hover,
         #removeButton:hover,
-        #profileButton:hover {
+        #profileButton:hover,
+        #infoButton:hover {
             background-color: #555;
+        }
+        #infoInputDiv{
+            background-color: #555;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            border-radius: 0 0 3px 3px;
+        }
+        #infoInputDiv #infoInpit{
+            background: none;
+            border: none;
+            color:white;
+            font-size: large;
+            width: 60%;
         }
     </style>
 </head>
@@ -155,6 +181,12 @@
         </div>
         <div id="infoPanel">
             <div id="info"></div>
+            <div id="infoInputDiv">
+                <div style="padding: 0 20px 0 20px ;">
+                    <input type="text" id="infoInpit"/>
+                    <input type="button" id="infoButton" value="Prompt" onclick="meowToAI()"/>
+                </div>
+            </div>
         </div>
     </main>
     <footer>
@@ -179,6 +211,8 @@
         const profileInput = document.getElementById("profileInput");
 
         const info = document.getElementById("info");
+        const infoInpit = document.getElementById("infoInpit");
+        const infoButton = document.getElementById("infoButton");
 
         let key = localStorage.getItem("key");
 
@@ -275,8 +309,32 @@
             ignore("channel", ignoredChannelInput.value, "add");
         }
 
+        function meowToAI(){
+            meowTo(infoInpit.value)
+        }
+
+        function meowTo(prompt){
+            let url = new URL("/prompt", basicUrl);
+            url.searchParams.set("key", key);
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', url);
+            rawInfo(prompt,"PROMPT")
+            infoButton.style.display = 'none';
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.send(JSON.stringify({
+                prompt
+            }));
+
+            xhr.onload = () =>{
+                let obj = JSON.parse(xhr.response);
+                setInfo(obj,obj.text);
+                //status();
+                infoButton.style.display = 'initial';
+            }
+        }
+
         function ignore(type, name, doing) {
-            console.log(type + "|" + name + " JUST MEOW " + doing)
+            console.log(type + "|" + name + " JUST MEOW " + doing);
             let url = new URL("/ignore/" + type, basicUrl);
             url.searchParams.set(doing, name);
             url.searchParams.set("key", key)
@@ -303,19 +361,22 @@
 
         function giveKey() {
             key = keyInput.value;
-            console.log(key);
             localStorage.setItem("key", key)
 
             status()
         }
 
-        function setInfo(obj,text = "Done!"){
+        function setInfo(obj,text = "Done!", logType = '<font color="#AAA">INFO</font>'){
             if(obj.status === "error"){
                 text = obj.error
+                logType = '<font color="#F11">ERR</font>'
             }
+            rawInfo(text,logType)
+        }
+        function rawInfo(text,logType){
             console.log(text)
 
-            info.innerHTML += `<p>[WEB LOG] ${text}</p>`;
+            info.innerHTML += `<div><font color="#555">[</font>${logType}<font color="#555">]</font> ${text}</div>`;
         }
     </script>
 </body>

@@ -32,6 +32,8 @@ export default class Bot{
             this.LoadProfile(profileName)
         }
 
+        this.messageHistory.maxLength = 4;
+
         this.aiProvider = aiProvider;
         this.client.on("ready",(m)=>this.#onReady(m));
         this.client.on("messageCreate",(m)=>this.#onMessageCreate(m));

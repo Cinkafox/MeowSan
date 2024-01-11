@@ -6,12 +6,15 @@ import fs from "fs";
 import LocalProvider from "./AIProvider/LocalProvider.js";
 import History from "./Data/History.js";
 import Prompt from "./Data/Prompt.js";
+import bodyParser from "body-parser";
 
 const app = express();
 const port = 3000;
 
 const provider = new GPTProvider();
 const bot = new Bot(provider,"kravchenko.nsfw")
+
+app.use(bodyParser.json())
 
 app.get('/', (req, res) => {
     res.setHeader("Content-Type","text/html").send(fs.readFileSync("Page/index.html"));
@@ -128,13 +131,12 @@ app.get("/ignore/:type", auth, (req, res) => {
         whe.send({"status":"error","error":"unknow type " + type})   ;
 });
 
-const history = new History();
-
-app.get("/prompt/:text",auth,async (req,res)=>{
+app.post("/prompt",auth,async (req,res)=>{
     const whe = res.setHeader("Content-Type","application/json");
-    const text = req.params.text;
-    const out = await provider.prompt("user",text,history);
-    whe.send({"text":out});
+
+    const text = req.body.prompt;
+    const out = await provider.prompt("user",text,bot.messageHistory);
+    whe.send({"status":"done","text":out});
 })
 
 app.listen(port, () => {
