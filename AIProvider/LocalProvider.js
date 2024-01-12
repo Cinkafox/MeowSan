@@ -16,10 +16,10 @@ export default class LocalProvider extends BaseProvider{
     context;
     session;
 
-    constructor(){
+    constructor(modelPath){
         super()
         this.model = new LlamaModel({
-            modelPath: "/home/Cinka/Загрузки/openbuddy-llama2-13b-v11.1.Q4_K_M.gguf"
+            modelPath
         });
         this.context = new LlamaContext({model:this.model});
     }
@@ -52,8 +52,8 @@ export default class LocalProvider extends BaseProvider{
                 lastTokens: 36,
                 penalty: 1.2,
                 penalizeNewLine: true,
-                frequencyPenalty: 0.02,
-                presencePenalty: 0.02,
+                frequencyPenalty: 0.1,
+                presencePenalty: 0.1,
             },
             temperature: 0.8,
             topK: 40,
