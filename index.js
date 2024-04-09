@@ -9,10 +9,10 @@ import bodyParser from "body-parser";
 const app = express();
 const port = 3000;
 
-const provider = new GPTProvider();
+const provider = new GPTProvider()//new LocalProvider();
 
 //вместо kravchenko можно написать другой профиль, который находится в папке profile
-const bot = new Bot(provider,"kravchenko.nsfw")
+const bot = new Bot(provider,"kuma")
 
 app.use(bodyParser.json())
 

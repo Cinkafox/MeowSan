@@ -1,6 +1,5 @@
 import History from "../Data/History.js";
 import BaseProvider from "./BaseProvider.js";
-import fs from "node:fs";
 import {LlamaModel, LlamaContext, LlamaChatSession, LlamaChatPromptWrapper, ChatMLChatPromptWrapper, GeneralChatPromptWrapper,FalconChatPromptWrapper,ChatPromptWrapper} from "node-llama-cpp";
 import Prompt from "../Data/Prompt.js";
 import Logger from "../Utils/Logger.js";
@@ -16,10 +15,10 @@ export default class LocalProvider extends BaseProvider{
     context;
     session;
 
-    constructor(modelPath){
+    constructor(){
         super()
         this.model = new LlamaModel({
-            modelPath
+            modelPath: process.env.MODEL_PATH
         });
         this.context = new LlamaContext({model:this.model});
     }
