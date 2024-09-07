@@ -21,7 +21,7 @@ function ReadUsers(){
     return ReadIgnore().users;
 }
 
-function ReadChannesl(){
+function ReadChannels(){
     return ReadIgnore().channels;
 }
 
@@ -63,4 +63,4 @@ function RemoveChannel(channel){
     return obj;
 }
 
-export {WriteChannel,WriteUser,RemoveChannel,RemoveUser,ReadUsers,ReadChannesl}
+export {WriteChannel,WriteUser,RemoveChannel,RemoveUser,ReadUsers,ReadChannels}

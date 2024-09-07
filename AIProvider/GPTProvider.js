@@ -20,7 +20,7 @@ export default class GPTProvider extends BaseProvider{
         let res = await tiny.post({url:"https://api.proxyapi.ru/openai/v1/chat/completions",headers:{
                     "Authorization":"Bearer " + process.env.AI_KEY
                 },data:{
-                    "model": "gpt-3.5-turbo",
+                    "model": "gpt-4o-mini",
                     "messages": history.items,
                 }});
 

@@ -8,7 +8,7 @@ import Logger from "./Utils/Logger.js";
 import Serialize from "./Utils/HistorySerializer.js";
 import BaseProvider from "./AIProvider/BaseProvider.js";
 import 'dotenv/config';
-import { ReadChannesl, ReadUsers, RemoveChannel, RemoveUser, WriteChannel, WriteUser } from "./Utils/Ignore.js";
+import { ReadChannels, ReadUsers, RemoveChannel, RemoveUser, WriteChannel, WriteUser } from "./Utils/Ignore.js";
 
 export default class Bot{
     client = new Client({
@@ -24,7 +24,7 @@ export default class Bot{
     messageHistory = new History(this.systemMessage);
     name = "Meow"
 
-    ignoringChannels = ReadChannesl();
+    ignoringChannels = ReadChannels();
     ignoringUsers = ReadUsers()
 
     constructor(aiProvider,profileName){
@@ -53,12 +53,15 @@ export default class Bot{
         if (this.ignoringChannels.includes(message.channelId) || author === message.client.user.username || this.ignoringUsers.includes(author)) return;
         if (!message.content.toLocaleLowerCase().includes(this.name)) return;
 
+        Logger.info("Responsing to: " + message.content);
+
         message.channel.sendTyping();
         
         let text = await this.inputPipeline.resolve(message.content,message);
 
         let res = await this.aiProvider.prompt(author,text,this.messageHistory);
         let outText = await this.outPipeline.resolve(res,message);
+        Logger.info(">>>>" + outText)
         if(outText.length !== 0){
             message.channel.send(outText);
         }

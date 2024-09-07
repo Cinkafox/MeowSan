@@ -5,14 +5,15 @@ import Logger from "./Utils/Logger.js";
 import fs from "fs";
 import LocalProvider from "./AIProvider/LocalProvider.js";
 import bodyParser from "body-parser";
+import GeminiProvider from "./AIProvider/GeminiProvider.js";
 
 const app = express();
 const port = 3000;
 
-const provider = new GPTProvider()//new LocalProvider();
+const provider = new GeminiProvider()//new LocalProvider();
 
 //вместо kravchenko можно написать другой профиль, который находится в папке profile
-const bot = new Bot(provider,"kuma")
+const bot = new Bot(provider,"reider")
 
 app.use(bodyParser.json())
 

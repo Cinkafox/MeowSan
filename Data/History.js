@@ -1,3 +1,4 @@
+import Logger from "../Utils/Logger.js";
 import Prompt from "./Prompt.js";
 
 export default class History{
@@ -9,7 +10,7 @@ export default class History{
      * @type {History}
      */
     parent;
-    maxLength = 6;
+    maxLength = 4;
 
     constructor(parent){
         this.#history = [];
@@ -22,7 +23,7 @@ export default class History{
      */
     append(promt){
         this.#history.push(promt);
-        while(this.#history.length > this.maxLength) this.#history.shift();
+        while(this.#history.length >= this.maxLength) this.#history.shift();
     }
 
     clear(cleanParent = false){
