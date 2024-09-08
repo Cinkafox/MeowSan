@@ -13,7 +13,7 @@ const port = 3000;
 const provider = new GeminiProvider()//new LocalProvider();
 
 //вместо kravchenko можно написать другой профиль, который находится в папке profile
-const bot = new Bot(provider,"reider")
+const bot = new Bot(provider,"puzan")
 
 app.use(bodyParser.json())
 

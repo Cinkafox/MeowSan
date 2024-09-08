@@ -5,6 +5,8 @@ import BaseProvider from "./BaseProvider.js";
 import tiny from "tiny-json-http";
 
 export default class GeminiProvider extends BaseProvider{
+    isProcessing = false;
+
      /**
      * 
      * @param {string} user 
@@ -14,6 +16,10 @@ export default class GeminiProvider extends BaseProvider{
      */
      async prompt(user,message,history){
         super.prompt(user,message,history);
+
+        if(this.isProcessing) return "Да ща! ЩА БЛЯТЬ! Я ДУМАЮ! Я МЫСЛЮ СЕЙЧАС! Потерпи ты несколько секунд а!"
+
+        this.isProcessing = true;
 
         history.append(new Prompt("user",user + " написал:" + message));
         let rebuilded = this._rebuild(history);
@@ -36,19 +42,25 @@ export default class GeminiProvider extends BaseProvider{
                 "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
                 "threshold": "BLOCK_NONE"
                 },
-            ]
+            ],
+            generation_config : {
+                "temperature": 1,
+                "top_p": 0.95,
+                "top_k": 0,
+                "max_output_tokens": 512,
+            }
         }
 
         if(rebuilded[1] != undefined)
             datum["system_instruction"] = rebuilded[1]
 
-        console.log(datum)
+        //console.log(datum)
 
         let res = await tiny.post({url:"https://api.proxyapi.ru/google/v1beta/models/gemini-1.5-flash:generateContent",headers:{
                     "Authorization":"Bearer " + process.env.AI_KEY
                 },data:datum});
 
-                console.log(res.body.candidates)        
+        console.log(res.body.candidates[0].content)        
 
         if(res.body.candidates[0].finishReason === 'OTHER'){
             history.clear();
@@ -61,6 +73,8 @@ export default class GeminiProvider extends BaseProvider{
         let content = res.body.candidates[0].content.parts[0].text;
 
         history.append(new Prompt(role,content));
+
+        this.isProcessing = false;
 
         return content;
      }
